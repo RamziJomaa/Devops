@@ -1,5 +1,4 @@
 services:
-
   sonarqube:
     image: sonarqube:lts
     container_name: sonarqube
@@ -12,8 +11,11 @@ services:
       - sonarqube_extensions:/opt/sonarqube/extensions
 
   jenkins:
-    image: jenkins/jenkins:lts-jdk17
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
     container_name: jenkins
+    user: root
     ports:
       - "8080:8080"
       - "50000:50000"
@@ -29,6 +31,7 @@ services:
 
 networks:
   devops-net:
+    name: devops-net
     driver: bridge
 
 volumes:

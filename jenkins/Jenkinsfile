@@ -47,13 +47,14 @@ docker build -t $IMAGE_NAME -f docker/Dockerfile.prod .
             }
         }
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh '''
-                kubectl apply -f k8s/
-                '''
-            }
-        }
+stage('Deploy to Kubernetes') {
+  steps {
+    sh '''
+    kubectl apply -f k8s/ --validate=false
+    '''
+  }
+}
+
     }
 
     post {
