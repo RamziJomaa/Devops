@@ -41,8 +41,8 @@ pipeline {
         stage('Docker Build') {
             steps {
                 sh '''
-                eval $(minikube docker-env)
-                docker build -t $IMAGE_NAME -f docker/Dockerfile.prod .
+docker build -t $IMAGE_NAME -f docker/Dockerfile.prod .
+
                 '''
             }
         }
