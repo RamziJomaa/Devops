@@ -34,7 +34,7 @@ pipeline {
 
     stage('SonarQube Analysis') {
     steps {
-        withSonarQubeEnv('sonarqube') {
+        withSonarQubeEnv('sonarQ') {
             sh '''
             cd app/student-management
             ./mvnw sonar:sonar
