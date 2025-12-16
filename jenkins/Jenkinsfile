@@ -1,0 +1,88 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "student-management:prod"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo 'Source code already present (local project)'
+            }
+        }
+
+        stage('Build with Maven') {
+            steps {
+                sh '''
+                cd app/student-management
+                chmod +x mvnw
+                ./mvnw clean package -DskipTests
+                '''
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                sh '''
+                cd app/student-management
+                ./mvnw test
+                '''
+            }
+        }
+
+    stage('SonarQube Analysis') {
+    steps {
+        withSonarQubeEnv('sonarqube') {
+            sh '''
+            cd app/student-management
+            ./mvnw sonar:sonar
+            '''
+        }
+    }
+}
+
+stage('Quality Gate') {
+    steps {
+        timeout(time: 2, unit: 'MINUTES') {
+            waitForQualityGate abortPipeline: true
+        }
+    }
+}
+stage('Deploy to Kubernetes') {
+    steps {
+        sh '''
+        kubectl apply -f k8s/
+        '''
+    }
+}
+
+
+        stage('Docker Build') {
+            steps {
+                sh '''
+                docker build -t $IMAGE_NAME -f docker/Dockerfile.prod .
+                '''
+            }
+        }
+
+stage('Security Scan (Trivy)') {
+    steps {
+        sh '''
+        trivy image --exit-code 1 --severity CRITICAL,HIGH $IMAGE_NAME
+        '''
+    }
+}
+
+    }
+
+    post {
+        success {
+            echo 'CI pipeline completed successfully'
+        }
+        failure {
+            echo 'Pipeline failed'
+        }
+    }
+}
