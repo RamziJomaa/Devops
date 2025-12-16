@@ -3,8 +3,10 @@ FROM jenkins/jenkins:lts-jdk17
 USER root
 
 RUN apt-get update && \
-    apt-get install -y docker.io && \
-    usermod -aG docker jenkins
+    apt-get install -y docker.io curl conntrack && \
+    curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && \
+    install minikube-linux-amd64 /usr/local/bin/minikube && \
+    rm minikube-linux-amd64
 
 USER jenkins
 
